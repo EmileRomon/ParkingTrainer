@@ -1,23 +1,33 @@
 ﻿using UnityEngine;
 
+public enum ParkingSlotType
+{
+    Angled,
+    Perpendicular,
+    Parallel
+}
+
+[RequireComponent(typeof(Collider))]
 public class ParkingTriggerController : MonoBehaviour
 {
-    private Collider trigger;
+    [SerializeField] private ParkingSlotType m_ParkingSlotType = ParkingSlotType.Perpendicular;
+    [SerializeField] private ParkingManager m_ParkingManager;
+    private Collider m_Trigger;
 
     private void Awake()
     {
-        trigger = GetComponent<Collider>();
+        m_Trigger = GetComponent<Collider>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.name);
+        m_ParkingManager.ResetParkingState(m_ParkingSlotType);
     }
 
-    //private void OnTriggerStay(Collider other)
-    //{
-    //    float dot = Vector3.Dot(other.gameObject.transform.forward, transform.forward);
-    //    float alignment = Mathf.Abs(dot);
-    //    Debug.Log(alignment + "min: " + trigger.bounds.Contains(other.bounds.min) + " max: " + trigger.bounds.Contains(other.bounds.max));
-    //}
+    private void OnTriggerStay(Collider other)
+    {
+        float dot = Vector3.Dot(other.gameObject.transform.forward, transform.forward);
+        float alignment = Mathf.Abs(dot);
+        m_ParkingManager.UpdateParkingState(alignment, m_Trigger.bounds.Contains(other.bounds.min) && m_Trigger.bounds.Contains(other.bounds.max), m_ParkingSlotType);
+    }
 }
