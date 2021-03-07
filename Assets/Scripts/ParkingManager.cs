@@ -9,9 +9,17 @@ public class ParkingManager : MonoBehaviour
     [Range(0, 1)] [SerializeField] private float m_RequiredAlignment;
     [SerializeField] private float m_MinimumSpeed;
 
-    [SerializeField] private GameObject PerpendicularSlots;
-    [SerializeField] private GameObject AngledSlots;
-    [SerializeField] private GameObject ParallelSlots;
+    [SerializeField] private GameObject m_PerpendicularSlots;
+    [SerializeField] private GameObject m_AngledSlots;
+    [SerializeField] private GameObject m_ParallelSlots;
+
+    private int[] m_CollisionCounts = new int[3];
+    private int m_CollisonCountIndex = 0;
+
+    public void AddCollision()
+    {
+        m_UIManager.SetCollisionCount(++m_CollisionCounts[m_CollisonCountIndex]);
+    }
 
     public void ResetParkingState(ParkingSlotType parkingType)
     {
@@ -28,20 +36,21 @@ public class ParkingManager : MonoBehaviour
             switch (parkingType)
             {
                 case ParkingSlotType.Perpendicular:
-                    PerpendicularSlots.SetActive(false);
-                    AngledSlots.SetActive(true);
+                    m_PerpendicularSlots.SetActive(false);
+                    m_AngledSlots.SetActive(true);
                     m_UIManager.ResetParkingState(ParkingSlotType.Angled);
                     break;
                 case ParkingSlotType.Angled:
-                    AngledSlots.SetActive(false);
-                    ParallelSlots.SetActive(true);
+                    m_AngledSlots.SetActive(false);
+                    m_ParallelSlots.SetActive(true);
                     m_UIManager.ResetParkingState(ParkingSlotType.Parallel);
                     break;
                 case ParkingSlotType.Parallel:
-                    ParallelSlots.SetActive(false);
-                    m_UIManager.DisplayEndGame();
+                    m_ParallelSlots.SetActive(false);
+                    m_UIManager.DisplayEndGame(m_CollisionCounts);
                     break;
             }
+            m_CollisonCountIndex++;
         }
     }
 }
